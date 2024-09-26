@@ -4,6 +4,7 @@ const auth = require("./route/authRoute.js");
 const mongoose = require("mongoose");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
+const course  = require("./route/courseUplaoding.js");
 
 app.use(cors({
   origin: "*",
@@ -22,6 +23,7 @@ mongoose.connect(mongoUri)
   });
 
 app.use("/", auth);
+app.use("/", course);
 
 const port = 5000;  
 app.listen(port, () => {

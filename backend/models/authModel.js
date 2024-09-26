@@ -8,11 +8,10 @@ const userSchema = new mongoose.Schema(
     isAdmin: { type: Boolean, default: false },
     role: {
       type: String,
-      enum: ['student', 'teacher'], // Only allows these two values
+      enum: ['student', 'teacher','admin'], // Only allows these two values
       required: true // Makes role a required field
     },
   },
-  
 );
 
 const userModel = mongoose.model("User", userSchema); // Changed to "User" for convention

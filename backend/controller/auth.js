@@ -3,7 +3,13 @@ const bcrypt = require('bcrypt');
 const userModel = require('../models/authModel.js');
 const jwt = require("jsonwebtoken")
 
+const customError = (statusCode, message) => {
+  const error = new Error(message);
+  error.statusCode = statusCode;
+  return error;
+};
 
+module.exports = customError;
 const createUser = async (req, res, next) => {
   const { userName, email, password, role } = req.body; // Extract role from req.body
 
@@ -32,35 +38,35 @@ const createUser = async (req, res, next) => {
 
  
 const signIn = async (req, res, next) => {
-  const { email, password } = req.body;
+  const { userName, password } = req.body;
   try {
-    console.log(email, password);
-    const validUser = await userModel.findOne({ email });
+    console.log(userName, password); // Make sure to log the correct variable
+    const validUser = await userModel.findOne({ userName });
     
-    if (!validUser) return next(customError(400, "User not Found"));
+    if (!validUser) {
+      return next(customError(401, "Incorrect username or password")); // Use custom error for not found
+    }
 
-    const validpassword = await bcrypt.compare(password, validUser.password);
-    if (!validpassword) {
-      return next(customError(401, "Password did not match"));
+    const validPassword = await bcrypt.compare(password, validUser.password);
+    if (!validPassword) {
+      return next(customError(401, "Incorrect username or password")); // Use custom error for password mismatch
     }
     
-    const { password: hashedpassword, ...rest } = validUser._doc;
+    const { password: hashedPassword, ...rest } = validUser._doc;
 
-    const token = jwt.sign({ id: validUser._id }, "secret", {
-      expiresIn: "1d",
-    });
-      console.log(token)
-    res 
-      .cookie("token", token, {
-        sameSite: "None",
-        httpOnly: true,
-        secure: true,
-      })
-      .json(rest);
+    const token = jwt.sign({ id: validUser._id }, "secret", { expiresIn: "1d" });
+    console.log(token);
+    
+    res.cookie("token", token, {
+      sameSite: "None",
+      httpOnly: true,
+      secure: true,
+    }).json(rest);
   } catch (error) {
-    next(error);
+    next(customError(500, "An error occurred during sign in")); // Catch and handle any unexpected errors
   }
 };
+
 
  const userVerification = (req, res) => {
   const { token } = req.cookies;
