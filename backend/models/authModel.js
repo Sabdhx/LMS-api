@@ -8,11 +8,12 @@ const userSchema = new mongoose.Schema(
     isAdmin: { type: Boolean, default: false },
     role: {
       type: String,
-      enum: ['student', 'teacher','admin'], // Only allows these two values
-      required: true // Makes role a required field
+      enum: ['student','admin'],
+      index:true, 
+      required: true
     },
   },
 );
 
-const userModel = mongoose.model("User", userSchema); // Changed to "User" for convention
+const userModel = mongoose.model("User", userSchema); 
 module.exports = userModel;

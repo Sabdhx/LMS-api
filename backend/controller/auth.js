@@ -2,7 +2,8 @@ const mongoose = require('mongoose')
 const bcrypt = require('bcrypt');
 const userModel = require('../models/authModel.js');
 const jwt = require("jsonwebtoken")
-
+const studentSchema = require("../models/studentSchema.js")
+const adminModel = require("../models/adminSchema.js")
 const customError = (statusCode, message) => {
   const error = new Error(message);
   error.statusCode = statusCode;
@@ -11,26 +12,30 @@ const customError = (statusCode, message) => {
 
 module.exports = customError;
 const createUser = async (req, res, next) => {
-  const { userName, email, password, role } = req.body; // Extract role from req.body
-
-  // Check if role is valid
-  if (!role || !['student', 'teacher'].includes(role)) {
-    return res.status(400).json({ error: "Invalid or missing role" });
-  }
-
+  const { userName, email, password, role } = req.body;
+  console.log(role)
   const hashedPassword = bcrypt.hashSync(password, 10);
-  
-  // Create a new User instance with all required fields
-  const newUser = new userModel({
-    userName,
-    email,
-    password: hashedPassword,
-    role // Include the role here
-  });
-
   try {
+    let newUser;      
+    if (role === 'admin') {
+      newUser =await adminModel({
+        userName,
+        email,
+        password: hashedPassword,
+        role
+      });
+    } else {
+      
+      newUser = new studentSchema({
+        userName,
+        email,
+        password: hashedPassword,
+        role
+      });
+    }
+
     await newUser.save();
-    res.status(201).json({ message: 'User created successfully' });
+    res.status(201).json({ message: 'User created successfully', role });
   } catch (error) {
     next(error);
   }
@@ -40,43 +45,49 @@ const createUser = async (req, res, next) => {
 const signIn = async (req, res, next) => {
   const { userName, password } = req.body;
   try {
-    console.log(userName, password); // Make sure to log the correct variable
+    console.log(userName, password);
     const validUser = await userModel.findOne({ userName });
     
     if (!validUser) {
-      return next(customError(401, "Incorrect username or password")); // Use custom error for not found
+      return next(customError(401, "Incorrect username or password")); 
     }
-
+    
     const validPassword = await bcrypt.compare(password, validUser.password);
     if (!validPassword) {
-      return next(customError(401, "Incorrect username or password")); // Use custom error for password mismatch
+      return next(customError(401, "Incorrect username or password"));
     }
     
     const { password: hashedPassword, ...rest } = validUser._doc;
-
+    
     const token = jwt.sign({ id: validUser._id }, "secret", { expiresIn: "1d" });
     console.log(token);
     
     res.cookie("token", token, {
       sameSite: "None",
       httpOnly: true,
-      secure: true,
-    }).json(rest);
+      secure: process.env.NODE_ENV === 'production',
+    });
+    res.status(200).json({
+      userName: validUser.userName,
+      role: validUser.role,
+      email: validUser.email
+    });
   } catch (error) {
-    next(customError(500, "An error occurred during sign in")); // Catch and handle any unexpected errors
+    next(customError(500, "An error occurred during sign in")); 
   }
 };
 
 
  const userVerification = (req, res) => {
   const { token } = req.cookies;
+  console.log(token)
   if (token) {
-    jwt.verify(token,"Secret", {}, async (err, usertoken) => {
+    jwt.verify(token,"secret", {}, async (err, usertoken) => {
       if (err) throw err;
-      const { name, email, _id, isAdmin, addresses } = await userModel.findById(
+      const { userName, email, _id, role } = await userModel.findById(
         usertoken.id
       );
-      res.json({ name, email, _id, isAdmin, addresses });
+      res.json({ userName, email, _id, role });
     });
   }
 };
@@ -90,4 +101,20 @@ const userLogout= async(req,res)=>{
   .send({message:"cookie cleared successfully"})
 }
 
-module.exports = {createUser,signIn,userVerification,userLogout}
+const allUsers=async(req,res)=>{
+  const reponse = await userModel.find()
+  res.json(reponse)
+}
+
+const DeleteUser = async(req,res)=>{
+  const id = req.params.id;
+  const user = await userModel.findByIdAndDelete(id);
+  res.json({message:"deleted"})
+}
+
+const studentFind=async(req,res)=>{
+  const find = await studentSchema.find();
+  res.status(200).json({message:find})
+}
+
+module.exports = {createUser,signIn,userVerification,userLogout,allUsers,DeleteUser,studentFind}

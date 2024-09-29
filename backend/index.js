@@ -5,9 +5,14 @@ const mongoose = require("mongoose");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const course  = require("./route/courseUplaoding.js");
+const courseUpload= require("./route/courseUplaoding.js")
+const port = 5000; 
+
+
+
 
 app.use(cors({
-  origin: "*",
+  origin: "http://localhost:5173",
   credentials: true 
 }));
 app.use(express.json());
@@ -22,10 +27,14 @@ mongoose.connect(mongoUri)
     process.exit(1); 
   });
 
+ 
+
+
+
 app.use("/", auth);
 app.use("/", course);
-
-const port = 5000;  
+app.use("/", courseUpload);
+ 
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });

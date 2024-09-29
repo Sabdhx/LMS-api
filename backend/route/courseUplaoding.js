@@ -1,7 +1,8 @@
 const express = require("express");
-const { courseUplaoding } = require("../controller/courseUpload");
+const { courseUploadingByTeacher } = require("../controller/courseUpload.js");
+const {TeacherTracking}=require("../middleware/TeacherTrack.js")
 const router = express.Router()
 
-router.post("/course" ,courseUplaoding)
+router.get("/create-course" ,TeacherTracking,courseUploadingByTeacher);
 
 module.exports = router;
