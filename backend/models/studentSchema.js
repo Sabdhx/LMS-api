@@ -10,7 +10,8 @@ const studentSchema = new mongoose.Schema({
     content: { type: String, required: true },
     submitted: { type: Boolean, default: false },
     submissionDate: { type: Date }
-  }]
+  }],
+  feeSubmission:{type: String, enum: ['submitted', 'unsubmitted'],default:"unsubmitted"}
 });
 
 const Student = mongoose.model("Student", studentSchema);

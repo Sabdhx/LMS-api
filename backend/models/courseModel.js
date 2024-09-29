@@ -1,11 +1,15 @@
 const mongoose = require("mongoose")
 
 const CourseSchema = new mongoose.Schema({
-  teacher: { type: mongoose.Schema.Types.ObjectId, ref: 'Admin', required: true },
   title: { type: String, required: true },
-  students: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Student' }],
   description: { type: String },
-  posts:[{type:mongoose.Schema.Types.ObjectId, ref:"Post"}]
+  posts:[{
+    title: { type: String, }, 
+    imageUrl: { type: String,  },  
+    vedioUrl: { type: String, }, 
+    fileUrl:{type:String, },  
+    uploadedAt: { type: Date, default: Date.now } 
+  }]
 }, { timestamps: true });
 
 const Course = mongoose.model("Course", CourseSchema);

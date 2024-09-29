@@ -1,6 +1,6 @@
 const userModel = require("../models/authModel.js");
 const jwt = require("jsonwebtoken");
-
+const adminSchema = require("../models/adminSchema.js")
 const TeacherTracking = async (req, res, next) => {
   const { token } = req.cookies; // Get the token from cookies
   console.log(token);
@@ -11,7 +11,7 @@ const TeacherTracking = async (req, res, next) => {
         return res.status(403).json({ message: "Invalid token" }); // Handle token error
       }
 
-      const user = await userModel.findById(usertoken.id);
+      const user = await adminSchema.findById(usertoken.id);
       if (!user) {
         return res.status(404).json({ message: "User not found" }); // Handle user not found
       }  
