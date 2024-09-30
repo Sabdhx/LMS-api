@@ -4,14 +4,16 @@ const studentSchema = new mongoose.Schema({
   userName: { type: String, required: true },
   email: { type: String, required: true },
   password: { type: String, required: true },
-  enrolledCourses: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Course' }],
-  assignments: [{
-    title: { type: String, required: true },
-    content: { type: String, required: true },
-    submitted: { type: Boolean, default: false },
-    submissionDate: { type: Date }
-  }],
-  feeSubmission:{type: String, enum: ['submitted', 'unsubmitted'],default:"unsubmitted"}
+  feeSubmission:{type: String, enum: ['submitted', 'unsubmitted'],default:"unsubmitted"},
+  progressCheck:[
+    {
+      course:{type:mongoose.Schema.Types.ObjectId , ref:"Course"},
+      percentage: {
+        type: Number, // Use Number type for numeric values
+        default: 0,   // Default value if not provided
+      },
+    }
+  ]
 });
 
 const Student = mongoose.model("Student", studentSchema);

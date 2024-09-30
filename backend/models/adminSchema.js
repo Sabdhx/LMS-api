@@ -14,13 +14,7 @@ const adminSchema = new mongoose.Schema(
         progress: { type: Number, default: 0 } // Percentage of course completed
       }
     ],
-    feeSubmissions: [
-      {
-        student: { type: mongoose.Schema.Types.ObjectId, ref: 'Student' },
-        course: { type: mongoose.Schema.Types.ObjectId, ref: 'Course' },
-        status: { type: String, enum: ['paid', 'unpaid'], default: 'unpaid' }
-      }
-    ],
+   
     assignments: [
       {
         title: { type: String, required: true },

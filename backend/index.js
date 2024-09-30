@@ -6,6 +6,7 @@ const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const course  = require("./route/courseUplaoding.js");
 const courseUpload= require("./route/courseUplaoding.js")
+const student = require("./route/studentRoute.js")
 const port = 5000; 
 
 
@@ -34,6 +35,7 @@ mongoose.connect(mongoUri)
 app.use("/", auth);
 app.use("/", course);
 app.use("/", courseUpload);
+app.use("/", student)
  
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
