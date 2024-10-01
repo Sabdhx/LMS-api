@@ -33,7 +33,7 @@ mongoose.connect(mongoUri)
 
 app.use("/auth", auth);
 app.use("/course", courseUpload);
-app.use("/student", student)
+app.use("/studentWork", student)
  
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
